@@ -1,5 +1,5 @@
 import path from 'path';
-// import eslintFriendlyFormatter from 'eslint-friendly-formatter';
+import eslintFriendlyFormatter from 'eslint-friendly-formatter';
 import ExtractTextPlugin from 'extract-text-webpack-plugin';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 
@@ -35,16 +35,16 @@ export default {
                 }),
                 exclude: /node_modules/,
             },
-            // // js rules
-            // {
-            //     test: /\.jsx?$/,
-            //     loader: 'eslint-loader',
-            //     enforce: 'pre',
-            //     exclude: /node_modules/,
-            //     options: {
-            //         formatter: eslintFriendlyFormatter,
-            //     },
-            // },
+            // js rules
+            {
+                test: /\.jsx?$/,
+                loader: 'eslint-loader',
+                enforce: 'pre',
+                exclude: /node_modules/,
+                options: {
+                    formatter: eslintFriendlyFormatter,
+                },
+            },
             {
                 test: /\.jsx?$/,
                 loader: 'babel-loader',
