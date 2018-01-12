@@ -1,0 +1,117 @@
+import path from 'path';
+import webpack from 'webpack';
+import eslintFriendlyFormatter from 'eslint-friendly-formatter';
+import ExtractTextPlugin from 'extract-text-webpack-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import CleanWebpackPlugin from 'clean-webpack-plugin';
+
+
+const NODE_ENV = process.env.NODE_ENV || 'development';
+const resolve = dir => path.resolve(__dirname, dir);
+const outputPath = resolve('build');
+
+export default {
+    entry: {
+        App: './src/index.js',
+    },
+    output: {
+        publicPath: '/',
+        path: outputPath,
+        filename: 'js/[name].[chunkhash:8].js',
+    },
+    resolve: {
+        alias: {
+            '~layout': resolve('src/layout'),
+        },
+    },
+    module: {
+        rules: [
+            // css && less rules
+            {
+                test: /\.css$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: 'style-loader',
+                    use: [
+                        'css-loader',
+                    ],
+                }),
+                exclude: /node_modules/,
+            },
+            {
+                test: /\.less$/,
+                use: ExtractTextPlugin.extract({
+                    fallback: 'style-loader',
+                    use: [
+                        'css-loader',
+                        'less-loader',
+                    ],
+                }),
+                exclude: /node_modules/,
+            },
+            // js rules
+            {
+                test: /\.jsx?$/,
+                loader: 'eslint-loader',
+                enforce: 'pre',
+                exclude: /node_modules/,
+                options: {
+                    formatter: eslintFriendlyFormatter,
+                },
+            },
+            {
+                test: /\.jsx?$/,
+                loader: 'babel-loader',
+                exclude: /node_modules/,
+            },
+            // assets rules
+            {
+                test: /\.(svg|eot|woff2?|ttf|otf)$/,
+                loader: 'url-loader',
+                options: {
+                    limit: 4096,
+                    name: 'fonts/[name].[hash:8].[ext]',
+                },
+            },
+            {
+                test: /\.(png|jpe?g|gif|webp)$/,
+                loader: 'url-loader',
+                options: {
+                    limit: 4096,
+                    name: 'images/[name].[hash:8].[ext]',
+                },
+            },
+        ],
+    },
+    plugins: [
+        new webpack.DefinePlugin({
+            'process.env.NODE_ENV': JSON.stringify(NODE_ENV),
+        }),
+        new CleanWebpackPlugin([
+            outputPath,
+        ]),
+        new ExtractTextPlugin('css/[name].css'),    //单独使用style标签加载css并设置其路径
+        // 根据模板插入css/js等生成最终HTML
+        new HtmlWebpackPlugin({
+            // 生成的html存放路径，相对于 path
+            filename: 'index.html',
+            // html模板路径
+            template: './src/index.html',
+            // 允许插件修改哪些内容，包括head与body
+            inject: true,
+            // 为静态资源生成hash值
+            hash: true,
+            // 压缩HTML文件
+            minify: {
+                // 移除HTML中的注释
+                removeComments: true,
+                // 删除空白符与换行符
+                collapseWhitespace: false,
+            },
+        }),
+    ],
+    devServer: {
+        port: 3030,
+        proxy: {},
+        historyApiFallback: true,
+    },
+};
